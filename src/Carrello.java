@@ -6,6 +6,7 @@ public class Carrello {
     private double costoCorrente=0;
 
 
+
     public Carrello (){
         this(35);
     }
@@ -43,11 +44,11 @@ public class Carrello {
 
     public int setAlimento ( Alimento a){
         int result=-1;
-        if(a!=null && (costoCorrente+a.getCosto())<=costoMax){
+        if( numAlimenti < carrello.length && a!=null && (costoCorrente+a.getCosto())<=costoMax){
             carrello[numAlimenti]= new Alimento(a);
             int i= numAlimenti;
             boolean verifica=false;
-            while (i > 1 && !verifica){
+            while (i >= 1 && !verifica){
                 if(carrello[i].getScadenzaIN() < carrello[i-1].getScadenzaIN()){
                     //scambio
                     Alimento temp = carrello[i];
@@ -82,15 +83,18 @@ public class Carrello {
 
     public int searchProduct(String name){
         int i =0;
+        int result=-1;
         boolean trovato=false;
         while (!trovato && i < numAlimenti){
-            if(this.carrello[i].getNome().equalsIgnoreCase(name))
+            if(this.carrello[i].getNome().equalsIgnoreCase(name)){
                 trovato=true;
+                result=i;
+            }
             else
                 i++;
         }
 
-        return i;
+        return result;
     }
 
 
@@ -98,6 +102,7 @@ public class Carrello {
     public int removeProductByName(String name){
         int pos = searchProduct(name);
         if(pos!=-1){
+            costoCorrente-=this.carrello[pos].getCosto();
             this.carrello[pos]=null;
             for (int i = pos; i < numAlimenti; i++) {
                 this.carrello[i]=this.carrello[i+1];
@@ -110,23 +115,40 @@ public class Carrello {
 
 
 
+    public int removeProductByNameEvoluted(String name){
+        int pos = searchProduct(name);
+        int cont=0;
+        while(pos!=-1){
+            costoCorrente-=this.carrello[pos].getCosto();
+            this.carrello[pos]=null;
+            for (int i = pos; i < numAlimenti; i++) {
+                this.carrello[i]=this.carrello[i+1];
+            }
+            this.carrello[--numAlimenti]=null;
+            cont++;
+            pos= searchProduct(name);
+        }
+
+        return cont;
+    }
+
+
+
     public int removeProductByPosition(int pos){
         if(pos>=0 && pos < carrello.length){
             if(this.carrello[pos]!=null){
+                costoCorrente-=this.carrello[pos].getCosto();
                 this.carrello[pos]=null;
                 for (int i = pos; i < numAlimenti; i++) {
                     this.carrello[i]=this.carrello[i+1];
                 }
                 this.carrello[--numAlimenti]=null;
+                
             } 
         }
 
         return pos;
     }
-
-
-    
-
 
 
     public int removeUnderMean(){
@@ -156,6 +178,29 @@ public class Carrello {
     }
 
 
+    public void svuotaCarrello(){
+        for (int i = 0; i < numAlimenti; i++) {
+            this.carrello[i]=null;
+        }
+        this.costoCorrente=0;
+        this.numAlimenti=0;
+    }
+
+
+    public int controlla(Carrello c){
+        int cont=0;
+        for (int i = 0; i < numAlimenti; i++) {
+            String corrente = this.carrello[i].getNome();
+            if(c.searchProduct(corrente)!=-1)
+                cont++;
+            
+        }
+
+        return cont;
+
+    }
+
+
 
     public boolean equals (Object obj){
         boolean verifica = false;
@@ -170,6 +215,7 @@ public class Carrello {
                     while (!diversi && i< numAlimenti){
                         if(!(this.carrello[i].equals(c.carrello[i])))
                             diversi = true;
+                        i++;
                     }
 
                     if(!diversi)
@@ -195,10 +241,5 @@ public class Carrello {
         s+=String.format("Costo totale della spesa: %.2f", this.costoCorrente);
         return s;
     }
-
-    
-
-
-
 
 }

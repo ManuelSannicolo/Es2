@@ -42,6 +42,16 @@ public class Alimento {
     }
 
 
+    public int compareCosto(Alimento a){
+        int result=0;
+        if(this.costo>a.costo)
+            result=1;
+        else if(this.costo<a.costo)
+            result=-1;
+        return result;
+    }
+
+
     public boolean equals (Object obj){
         boolean verifica=false;
         if (this == obj){
